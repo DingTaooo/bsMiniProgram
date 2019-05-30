@@ -1,0 +1,110 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-05-20 09:31:41 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-20 11:03:48
+ */
+
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    word-break: break-all;
+    .timeline {
+      margin-bottom: -20rpx;
+      .top {
+        display: flex;
+        .left-top {
+          position: relative;
+          left: -5rpx;
+          width: 20rpx;
+          height: 20rpx;
+          border-radius: 50%;
+          border: 5rpx solid #53c68c;
+        }
+        .right-top {
+          position: relative;
+          bottom: 6rpx;
+          margin-left: 8rpx;
+        }
+      }
+      .bottom {
+        display: flex;
+        position: relative;
+        left: 9rpx;
+        bottom: 15rpx;
+        border-left: 2rpx solid #53c68c;
+        .left-bottom {
+          background-color: #53c68c;
+          width: 2rpx; // height: 100%;
+        }
+        .right-bottom {
+          margin: 20rpx 0 40rpx 20rpx;
+          padding: 10rpx;
+          border-radius: 4rpx;
+          background-color: #f5f5f5;
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <repeat for="{{timeline}}" key="index" index="index" item="item">
+      <view class="timeline">
+        <view class="top">
+          <view class="left-top"></view>
+          <view class="right-top">{{item.time}}</view>
+        </view>
+        <view class="bottom">
+          <!-- <view class="left-bottom"></view> -->
+          <view class="right-bottom">{{item.intro}}</view>
+        </view>
+      </view>
+    </repeat>
+    <view class="tip" wx:if="{{!timeline.length}}">
+      <view class="warning">该书还没有时间线！</view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '时间轴'
+    }
+    components = {}
+    mixins = []
+    data = {
+      bookId: '',
+      timeline: []
+    }
+    computed = {}
+    methods = {}
+    events = {}     // 获取人物志
+    getTimelineList() {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/timeline/?book=' + this.bookId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          // 判断用户是否收藏该本书
+          that.timeline = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad(options) {
+      this.bookId = options.bookId
+      this.$apply()
+      this.getTimelineList()
+    }
+    onShow() {}
+  }
+</script>

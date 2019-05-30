@@ -1,0 +1,177 @@
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    padding: 0;
+    .search-box {
+      width: 100%;
+    }
+    .column {
+      border-radius: 20rpx;
+      margin-top: 20rpx;
+      &:first-child {
+        margin-top: 0;
+      }
+      .title {
+        height: 60rpx;
+        padding-top: 10rpx;
+        text-align: center;
+      }
+      .books {
+        padding: 26rpx;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        .book {
+          width: 280rpx;
+          margin: 10rpx 28rpx;
+          .cover {
+            position: relative;
+            width: 100%;
+            height: 392rpx;
+            border-radius: 20rpx;
+            border: 1px solid #f2e7e7;
+            box-shadow: 0px 15px 10px -15px #999;
+            .image {
+              width: 100%;
+              border-radius: 10rpx;
+              overflow: hidden;
+            }
+          }
+          .delete {
+            text-align: center;
+            line-height: 60rpx;
+            width: 60rpx;
+            height: 60rpx;
+            border-radius: 50%;
+            background-color: #8bc5a8;
+            color: #fff;
+            position: absolute;
+            bottom: 10rpx;
+            right: 10rpx;
+          }
+        }
+        .name {
+          margin-top: 10rpx;
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .author {
+          margin-bottom: 10rpx;
+          font-size: 12px;
+          color: #999;
+        }
+      }
+    }
+    .edit {
+      position: fixed;
+      bottom: 40rpx;
+      right: 40rpx;
+      border: 1rpx solid #fff;
+      background-color: #53c68c;
+      color: #fff;
+      width: 80rpx;
+      height: 80rpx;
+      border-radius: 50%;
+      line-height: 80rpx;
+      text-align: center;
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="column my-books">
+      <view class="books">
+        <repeat for="{{books}}" key="index" index="index" item="item">
+          <view class="book">
+            <view class="cover">
+              <navigator url="../home/bookDetail?book_id={{item.books.book_id}}">
+                <image src="{{item.books.cover_image}}" mode="aspectFill" class="image" style="height:392rpx;" />
+              </navigator>
+              <view class="delete" style="display:{{showDelete ? 'block' : 'none'}}" data-bookid="{{item.id}}" @tap="delUserBook">
+                <i class="iconfont icon-delete"></i>
+              </view>
+            </view>
+            <view class="name ellipsis">
+              {{item.books.name}}
+            </view>
+            <view class="author ellipsis">
+              {{item.books.authors[0].name}}
+            </view>
+          </view>
+        </repeat>
+      </view>
+      <view class="edit" @tap="toggleDelete" wx:if="{{books.length > 0}}">{{showDelete ? '完成' : '编辑'}}</view>
+      <view class="tip" wx:if="{{books.length == 0}}">
+        <view class="warning">您的书架还没有书，快去添加吧！</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的书架'
+    }
+    components = {}
+    mixins = []
+    data = {
+      userInfo: {},
+      showDelete: false,
+      books: []
+    }
+    computed = {}
+    methods = {
+      toggleDelete() {
+        this.showDelete = !this.showDelete
+        this.$apply()
+      },
+      delUserBook(e) {
+        let that = this
+        let id = e.currentTarget.dataset.bookid
+        wx.request({
+          url: 'http://127.0.0.1:8000/usersbooks/' + id,
+          method: 'delete',
+          header: {
+            'content-type': 'multipart/form-data'
+          },
+          success: function(res) {
+            that.getUserBooksList()
+            wx.showToast({
+              title:'成功',
+              icon:'success',
+              duration: 1000
+              })
+          }
+        })
+      }
+    }
+    events = {}
+    // 获取用户书架
+    getUserBooksList() {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/usersbookdetail/?user=' + this.userInfo.userId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.books = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad() {
+      this.userInfo = this.$parent.globalData.userInfo
+      this.$apply()
+    }
+    onShow() { 
+      this.getUserBooksList()
+      this.showDelete = false
+    }
+  }
+</script>

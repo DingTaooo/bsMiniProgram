@@ -1,0 +1,85 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-05-20 09:31:41 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-20 11:43:48
+ */
+
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    word-break: break-all;
+    .top {
+      position: relative;
+      display: flex;
+      .image {
+        image {
+          width: 220rpx;
+          height: 220rpx;
+          border-radius: 20rpx;
+        }
+      }
+      .right {
+        position: absolute;
+        left: 240rpx;
+        bottom: 10rpx;
+        padding: 20rpx 20rpx 0;
+        .name {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .time{
+          font-size: 12px;
+        }
+      }
+    }
+    .intro{
+      margin-top: 20rpx;
+      padding: 20rpx;
+      background-color: #f5f5f5;
+      border-radius: 20rpx;
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="top">
+      <view class="image">
+        <image src="{{image}}" mode="aspectFill"/>
+      </view>
+      <view class="right">
+        <view class="name">{{name}}</view>
+        <view class="time">{{time}}</view>
+      </view>
+    </view>
+    <view class="intro">
+      吴承恩（1500或1506-1583）字汝忠，号射阳山人，汉族，我国四大名著之一《西游记》作者、明代小说家，淮安府山阳县河下人（现江苏省淮安市淮安区）。 [1] 
+现存明刊百回本《西游记》均无作者署名，提出《西游记》作者是吴承恩的首先是清代学者吴玉搢，吴玉搢在《山阳志遗》中介绍吴承恩：“嘉靖中,吴贡生承恩,字汝忠,号射阳山人,吾淮才士也”，“及阅《淮贤文目》，载《西游记》为先生著” [2]  。吴承恩自幼敏慧，博览群书，尤喜爱神话故事。在科举中屡遭挫折，嘉靖中补贡生。嘉靖四十五年(1566年)任浙江长兴县丞。殊途由于宦途困顿，晚年绝意仕进，闭门著书。
+2004年，江苏省淮安市淮安区政府在山上茶庵处山下山门处建树其石雕座像，用来纪念他。
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '作者介绍'
+    }
+    components = {}
+    mixins = []
+    data = {
+      name: '吴承恩',
+      time: '232-454',
+      image: 'http://i0.qhimg.com/dr/270_500_/t01e460674640b4108f.jpg',
+      intro: 'kllllllllllllllllllf'
+    }
+    computed = {}
+    methods = {}
+    events = {}
+    onLoad() {}
+    onShow() {}
+  }
+</script>

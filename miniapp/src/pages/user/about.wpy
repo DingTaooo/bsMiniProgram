@@ -1,0 +1,52 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-05-11 12:07:27 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-12 14:30:13
+ */
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    height: 100vh;
+    background: url("https://wx1.sinaimg.cn/mw690/dc84bcc3gy1g2yj5ok0y7j20f00kvmz2.jpg") no-repeat;
+    background-size: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    position: relative;
+    .chunweixing {
+      position: absolute;
+      width: 100%;
+      bottom: 60rpx;
+      color: #333;
+      text-align: center;
+    }
+    image {
+      width: 100%;
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="chunweixing">这是蠢卫星的毕设</view>
+    <!-- <image src="https://wx1.sinaimg.cn/mw690/dc84bcc3gy1g2yj5ok0y7j20f00kvmz2.jpg" mode="aspectFill"/> -->
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '关于小程序'
+    }
+    components = {}
+    mixins = []
+    data = {}
+    computed = {}
+    methods = {}
+    events = {}
+    onLoad() {}
+    onShow() {}
+  }
+</script>

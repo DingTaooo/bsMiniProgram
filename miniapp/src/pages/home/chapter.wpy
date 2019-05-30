@@ -1,0 +1,381 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-04-02 17:50:30 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-20 11:12:09
+ */
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    position: relative;
+    padding: 0;
+    line-height: 1.5;
+    position: relative;
+    word-break: break-all;
+    .header {
+      padding-top: 40rpx;
+      padding-left: 40rpx;
+      font-size: 16px;
+      font-weight: bold;
+      height: 80rpx;
+    }
+    .article {
+      width: 200%;
+      display: flex; // border-bottom: 10rpx solid #f5f5f5;
+      .origin,
+      .analyze {
+        padding: 0 20rpx 20rpx;
+      }
+      .origin {
+        width: 100%;
+        text-indent:2em;
+        &.show {
+          display: block;
+        }
+        &.hide {
+          display: none;
+        }
+      }
+      .analyze {
+        width: 100%;
+        background-color: #e8ebf0;
+        .title {
+          padding: 20rpx 0;
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .expand {
+          padding: 8rpx;
+          font-size: 14px;
+          font-weight: normal;
+          background-color: #fff;
+          // margin: 0 -20rpx;
+          border-radius: 10rpx;
+          margin-top: 20rpx;
+          &:first-child{
+            margin-top: 0;
+          }
+          .title {
+            color: #53c68c;
+            padding: 0;
+            font-size: 14px;
+            font-weight: bold;
+          }
+          .content{
+            .expand-image{
+              width: 100%;
+              height: 300rpx;
+            }
+          }
+        }
+        .add-expand {
+          margin: 20rpx auto 20rpx;
+          width: 240rpx;
+          height: 60rpx;
+          border-radius: 10rpx;
+          background-color: #fff;
+          color: #53c68c;
+          text-align: center;
+          line-height: 60rpx;
+        }
+      }
+    }
+    .fixed {
+      position: fixed;
+      right: 20rpx;
+      bottom: 120rpx;
+      z-index: 999;
+      .comment-btn,
+      .switch {
+        color: #fff;
+        height: 80rpx;
+        width: 80rpx;
+        border-radius: 50%;
+        border: 2rpx solid #fff;
+        background-color: #53c68c;
+        text-align: center;
+        line-height: 80rpx;
+      }
+      .comment-btn {
+        margin-top: 40rpx;
+      }
+    }
+    .comment-box {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      .back {
+        width: 100%;
+        height: 25vh;
+        background: #53c68c;
+        opacity: 0.1;
+      }
+      .comment-back {
+        // position: relative;
+        .comment-list {
+          position: absolute;
+          top: 20vh;
+          width: 100%;
+          height: 80vh;
+          background-color: #fff;
+          opacity: 1;
+          border-radius: 40rpx 40rpx 0 0;
+          .title {
+            width: 100%;
+            height: 4vh;
+            text-align: center;
+            .return {
+              position: absolute;
+              right: 30rpx;
+              top: 10rpx;
+              .iconfont{
+                color: #53c68c;
+              }
+            }
+          }
+          .comment-container {
+            width: 100%;
+            height: 70vh;
+            word-break: break-all;
+            .comment {
+              padding: 0 20rpx;
+              .info-image{
+                width: 160rpx;
+                height: 160rpx;
+                border-radius: 10rpx;
+              }
+            }
+          }
+          .add-comment {
+            // padding: 0 20rpx;
+            width: 100%;
+            height: 6vh;
+            position: absolute;
+            bottom: 0;
+          }
+        }
+      }
+    }
+    .pre-next {
+      position: fixed;
+      bottom: 0;
+      height: 80rpx;
+      width: 100%;
+      color: #fff;
+      background-color: #53c68c;
+      display: flex;
+      text-align: center;
+      .pre,
+      .next {
+        margin: 10rpx 0;
+        line-height: 60rpx;
+        width: 100%;
+      }
+      .pre {
+        border-right: 1px solid #fff;
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="header">
+      {{chapterDetail.name}}
+    </view>
+    <view class="article {{articleState ? 'show' :'hide'}}" animation="{{animationData}}">
+      <view class="origin">
+        <rich-text nodes="{{chapterDetail.article}}"></rich-text>
+      </view>
+      <view class="analyze">
+        <view class="title">扩展:</view>
+        <repeat for="{{chapterExpand}}"  key="index" index="index" item="item">
+          <view class="expand">
+            <view class="title">{{item.title}}</view>
+            <view class="content">
+              <view>{{item.content}}</view>
+              <image class="expand-image" wx:if="{{item.image}}" mode="aspectFill" data-imgurl="{{item.image}}" @tap="previewImage" src="{{item.image}}"/>
+              <!-- <image class="expand-image" mode="aspectFill" src="{{https://cdn.dribbble.com/users/31752/screenshots/6488735/crane.png}}"/> -->
+            </view>
+          </view>
+        </repeat>
+        <navigator class="add-expand" url="addExpand?chapterId={{chapterId}}">
+          <i class="iconfont icon-plus"></i>
+        </navigator>
+        <view>* 您的宝贵建议对我们系统的成长会有很大帮助</view>
+      </view>
+    </view>
+    <view class="fixed" style="display: {{isShowComment ? 'none' : 'block'}}">
+      <view class="switch" @tap="toggleShow">{{isAnalyzeShow ? '原文' : '扩展'}}</view>
+      <view class="comment-btn" @tap="ShowComment">评论</view>
+    </view>
+    <view class="comment-box" style="display: {{isShowComment ? 'block' : 'none'}}">
+      <view class="back" @tap="hideComment">
+      </view>
+      <view class="comment-back">
+        <view class="comment-list">
+          <view class="title">评论区
+            <view class="return" @tap="hideComment">
+              <i class="iconfont icon-cancel"></i>
+            </view>
+          </view>
+          <scroll-view class="comment-container" scroll-y="true">
+            <view class="comment">
+              <repeat for="{{chapterComments}}" key="index" index="index" item="item">
+                <view class="comment-item">
+                  <view class="user">
+                    <image class="user-image" src="{{item.user.user_image}}" mode="aspectFill" />
+                    <view class="user-info">
+                      <view class="name">{{item.user.name}}</view>
+                      <view class="time">{{item.add_time}}</view>
+                    </view>
+                  </view>
+                  <view class="info">
+                    <view>{{item.comment_word}}</view>
+                    <image class="info-image" wx:if="{{item.comment_image}}"  data-imgurl="{{item.comment_image}}" @tap="previewImage" mode="aspectFill" src="{{item.comment_image}}"/>
+                    <!-- <image class="info-image" mode="aspectFill" src="https://cdn.dribbble.com/users/31752/screenshots/6488735/crane.png"/> -->
+                  </view>
+                </view>
+              </repeat>
+            </view>
+            <view class="tip" wx:if="{{chapterComments.length === 0}}">
+              <view class="warning">还没有评论哦！</view>
+            </view>
+          </scroll-view>
+          <view class="add-comment">
+            <navigator url="addChapterComment?chapterId={{chapterId}}">
+              <input class="input" placeholder="点击评论" />
+            </navigator>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '章节阅读'
+    }
+    components = {}
+    mixins = []
+    data = {
+      articleState: true,
+      screenWidth: 0,
+      screenHeight: 0,
+      isAnalyzeShow: false,
+      isShowComment: false,
+      animationData: {},
+      animationData2: {},
+      inputState: false,
+      chapterDetail: {},
+      chapterId: '',
+      chapterComments: [],
+      chapterExpand: null
+    }
+    computed = {}
+    methods = {
+      previewImage(e) {  
+        let current=e.target.dataset.src;
+        let imgurl = []
+        imgurl[0]=e.target.dataset.imgurl;
+        wx.previewImage({
+            current: current, // 当前显示图片的http链接
+            urls: imgurl // 需要预览的图片http链接列表
+        })
+      },
+      // 解析出现和隐藏动画
+      toggleShow() {
+        let animation = wx.createAnimation({
+          duration: 400,
+          timingFunction: 'ease',
+          delay: 0
+        })
+        if (this.isAnalyzeShow === false) {
+          animation.translateX(-this.screenWidth).step()
+          this.isAnalyzeShow = !this.isAnalyzeShow
+        } else {
+          animation.translateX(0).step()
+          this.isAnalyzeShow = !this.isAnalyzeShow
+        }
+        this.animationData = animation.export()
+        this.$apply()
+      },
+      ShowComment() {
+        this.isShowComment = true
+        this.$apply()
+      },
+      hideComment() {
+        this.isShowComment = false
+        this.$apply()
+      }
+    }
+    events = {}
+    getScreenWidth() {
+      this.screenWidth = wx.getSystemInfoSync().windowWidth
+      this.screenHeight = wx.getSystemInfoSync().windowHeight
+      console.log(wx.getSystemInfoSync().windowHeight, 'wx.getSystemInfoSync().windowHeight')
+      this.$apply()
+    }
+    getChapterDetail() {
+      const that = this
+      let id = that.chapterId
+      wx.request({
+        url: 'http://127.0.0.1:8000/chapters/?chapter_id=' + id,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.chapterDetail = res.data[0]
+          that.$apply()
+        }
+      })
+    }
+    getChapterComment() {
+      const that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/usercommentchapter/?chapter=' + that.chapterId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.chapterComments = res.data
+          that.$apply()
+        }
+      })
+    }
+    getChapterExpand() {
+      const that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/chaptersexpand/?chapter=' + that.chapterId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.chapterExpand = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad(options) {
+      this.chapterId = options.chapterId
+      this.$apply()
+      this.getScreenWidth()
+      this.getChapterDetail()
+      this.getChapterComment()
+      this.getChapterExpand()
+    }
+    onShow() {
+      this.getChapterComment()
+    }
+  }
+</script>

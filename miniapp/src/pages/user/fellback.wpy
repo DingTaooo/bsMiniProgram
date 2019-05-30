@@ -1,0 +1,177 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-05-07 14:54:14 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-11 20:04:34
+ */
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    .header {
+      display: flex;
+      justify-content: space-between;
+    }
+    .book-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .pingfen-box {
+      font-size: 16px;
+      margin-top: 20rpx;
+      display: flex;
+      .iconfont {
+        width: 40rpx;
+        height: 40rpx;
+        margin-right: 10rpx;
+        color: #f5f5f5;
+        &.selected {
+          color: #f4ea2a;
+        }
+      }
+    }
+    .comment {
+      border-top: 1rpx solid #f5f5f5;
+      margin-top: 20rpx;
+      padding: 10rpx;
+      .comment-words {
+        width: 100%;
+        font-size: 16px;
+      }
+    }
+    .submit {
+      margin-top: 30rpx;
+      height: 80rpx;
+      width: 200rpx;
+      font-size: 16px;
+      border-radius: 40rpx;
+      background-color: #53c68c;
+      color: #fff;
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class='book-name'>
+      为我们的系统打个分吧！
+    </view>
+    <view class='pingfen-box'>
+      <view>评分：</view>
+      <view class='pingfen'>
+        <i class="iconfont icon-xing {{xing1 ? 'selected' : ''}}" @tap="setXing1"></i>
+        <i class="iconfont icon-xing {{xing2 ? 'selected' : ''}}" @tap="setXing2"></i>
+        <i class="iconfont icon-xing {{xing3 ? 'selected' : ''}}" @tap="setXing3"></i>
+        <i class="iconfont icon-xing {{xing4 ? 'selected' : ''}}" @tap="setXing4"></i>
+        <i class="iconfont icon-xing {{xing5 ? 'selected' : ''}}" @tap="setXing5"></i>
+      </view>
+    </view>
+    <view class='comment'>
+      <textarea class='comment-words' @input="setMessage" placeholder="输入反馈"></textarea>
+    </view>
+    <button class='submit' @tap="sendFellback">提交</button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '反馈'
+    }
+    components = {}
+    mixins = []
+    data = {
+      message: '',
+      xing1: true,
+      xing2: false,
+      xing3: false,
+      xing4: false,
+      xing5: false,
+      bookScore: ''
+    }
+    computed = {}
+    methods = {
+      setXing1() {
+        this.xing1 = true
+        this.xing2 = false
+        this.xing3 = false
+        this.xing4 = false
+        this.xing5 = false
+        this.bookScore = 1
+        this.$apply()
+      },
+      setXing2() {
+        this.xing1 = true
+        this.xing2 = true
+        this.xing3 = false
+        this.xing4 = false
+        this.xing5 = false
+        this.bookScore = 2
+        this.$apply()
+      },
+      setXing3() {
+        this.xing1 = true
+        this.xing2 = true
+        this.xing3 = true
+        this.xing4 = false
+        this.xing5 = false
+        this.bookScore = 3
+        this.$apply()
+      },
+      setXing4() {
+        this.xing1 = true
+        this.xing2 = true
+        this.xing3 = true
+        this.xing4 = true
+        this.xing5 = false
+        this.bookScore = 4
+        this.$apply()
+      },
+      setXing5() {
+        this.xing1 = true
+        this.xing2 = true
+        this.xing3 = true
+        this.xing4 = true
+        this.xing5 = true
+        this.bookScore = 5
+        this.$apply()
+      },
+      setMessage(e) {
+        this.message = e.detail.value
+        this.$apply()
+      },
+      sendFellback(){
+        const that = this
+        wx.request({
+          url: 'http://127.0.0.1:8000/usersfellback/',
+          data: {
+            user: that.userInfo.userId,
+            message: that.message,
+            score: that.bookScore
+          },
+          method: 'post',
+          header: {
+            'content-type': 'application/json'
+          },
+          success: function(res) {
+            wx.showToast({
+              title:'反馈成功，感谢您的宝贵意见',
+              icon:'success',
+              duration: 800
+              })
+            setTimeout(() => {
+              wepy.navigateBack()
+            }, 1000)
+          }
+        })
+      }
+    }
+    events = {}
+    onLoad() {
+      this.userInfo = this.$parent.globalData.userInfo
+      this.$apply()
+    }
+    onShow() {}
+  }
+</script>

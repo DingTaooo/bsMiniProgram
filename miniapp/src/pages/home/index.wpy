@@ -1,0 +1,218 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-03-29 13:25:52 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-12 13:45:17
+ */
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    padding: 0;
+    .search-box {
+      background-color: #53c68c;
+      padding: 0 20rpx 10rpx;
+    }
+    .swiper-container {
+      .swiper {
+        .img {
+          width: 100%;
+        }
+      }
+    }
+    .class-nav {
+      color: #999;
+      font-size: 12px;
+      text-align: center;
+      padding: 20rpx 0;
+      display: flex;
+      justify-content: space-around;
+      border-bottom: 12rpx solid #f5f5f5;
+      .nav {
+        .nav-image {
+          padding: 6rpx;
+          width: 76rpx;
+          height: 76rpx;
+          border-radius: 50%;
+          background-color: #53c68c;
+          border: 1px solid #f5f5f5;
+          box-shadow: 0px 15px 10px -15px #999;
+        }
+      }
+    }
+    .column-box {
+      margin-top: 40rpx;
+      .column {
+        border-radius: 20rpx;
+        margin-top: 20rpx;
+        &:first-child {
+          margin-top: 0;
+        }
+        .title {
+          height: 60rpx;
+          padding-top: 10rpx;
+          text-align: center;
+        }
+        .books {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          .book {
+            width: 180rpx;
+            margin: 10rpx 28rpx;
+            .cover {
+              width: 100%;
+              height: 252rpx;
+              border-radius: 8rpx;
+              border: 1px solid #f2e7e7;
+              .image {
+                width: 100%;
+                box-shadow: 0px 15px 10px -15px #999;
+              }
+            }
+            .name {
+              margin-top: 10rpx;
+              font-size: 16px;
+              font-weight: bold;
+            }
+            .author {
+              margin-bottom: 10rpx;
+              font-size: 10px;
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <view class="search-box">
+      <navigator url="search">
+        <input class="input" placeholder="搜索您想要的图书" />
+      </navigator>
+    </view>
+    <view class="swiper-container">
+      <swiper indicator-dots="true" indicator-color="#f5f5f5" indicator-active-color="#53c68c" autoplay="true" interval="2000" duration="500" circular="true" current="0" easing-function="easeInCubic" class="swiper">
+        <repeat for="{{books}}" key="index" index="index" item="item">
+          <swiper-item wx:if="{{index < 4}}">
+            <image src="{{item.cover_image}}" class="img" />
+          </swiper-item>
+        </repeat>
+      </swiper>
+    </view>
+    <view class="class-nav">
+      <repeat for="{{classes}}" key="index" index="index" item="item">
+        <navigator url="class?title={{item.name}}&bookType={{item.bookType}}">
+          <view class="nav">
+            <image class="nav-image" src="../../images/{{item.image}}.png" mode="aspectFill" />
+            <view class="name">{{item.name}}</view>
+          </view>
+        </navigator>
+      </repeat>
+    </view>
+    <view class="column-box">
+      <view class="column other">
+        <view class="title">- 最受欢迎 -</view>
+        <view class="othor-books">
+          <repeat for="{{books}}" key="index" index="index" item="item">
+            <view class="book" wx:if="{{index < 3}}">
+              <navigator class="cover" url="bookDetail?book_id={{item.book_id}}">
+                <image src="{{item.cover_image}}" mode="aspectFill" class="image" />
+              </navigator>
+              <view class="intro">
+                <view class="name ellipsis">{{item.name}}
+                </view>
+                <view class="author ellipsis">
+                </view>
+                <view class="brief">
+                  {{item.intro}}
+                </view>
+              </view>
+            </view>
+          </repeat>
+        </view>
+      </view>
+      <view class="column other">
+        <view class="title">- 推荐书籍 -</view>
+        <view class="othor-books">
+          <repeat for="{{books}}" key="index" index="index" item="item">
+            <view class="book" wx:if="{{index < 3}}">
+              <navigator class="cover" url="bookDetail?book_id={{item.book_id}}">
+                <image src="{{item.cover_image}}" mode="aspectFill" class="image" />
+              </navigator>
+              <view class="intro">
+                <view class="name ellipsis">{{item.name}}
+                </view>
+                <view class="author ellipsis">
+                </view>
+                <view class="brief">
+                  {{item.intro}}
+                </view>
+              </view>
+            </view>
+          </repeat>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '主页'
+    }
+    components = {}
+    mixins = []
+    data = {
+      books: [],
+      classes: [{
+          name: '古典名著',
+          image: 'books',
+          bookType: 1
+        },
+        {
+          name: '世界文学',
+          image: 'mofa',
+          bookType: 2
+        },
+        {
+          name: '中英双语',
+          image: 'yingyu',
+          bookType: 3
+        },
+        {
+          name: '童话故事',
+          image: 'tonghua',
+          bookType: 4
+        },
+      ]
+    }
+    computed = {}
+    methods = {}
+    events = {}
+    getBooks() {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/books/',
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.books = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad() {
+      this.getBooks()
+    }
+    onShow() {}
+  }
+</script>

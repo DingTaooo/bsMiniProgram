@@ -1,0 +1,98 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-05-20 09:31:41 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-20 11:14:19
+ */
+
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container {
+    .character {
+      margin-top: 20rpx;
+      display: flex;
+      .left {
+        width: 100rpx;
+        image {
+          width: 100%;
+          height: 100rpx;
+          border-radius: 50rpx;
+        }
+      }
+      .right {
+        flex: 1;
+        word-break: break-all;
+        margin-left: 10rpx;
+        border-radius: 10rpx;
+        padding: 10rpx;
+        background-color: #f5f5f5;
+        .title {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <repeat for="{{character}}" key="index" index="index" item="item">
+      <view class="character">
+        <view class="left">
+          <image src="{{item.image}}" mode="aspectFill"/>
+        </view>
+        <view class="right">
+          <view class="title">{{item.name}}</view>
+          <view class="intro">
+            {{item.intro}}
+          </view>
+        </view>
+      </view>
+    </repeat>
+    <view class="tip" wx:if="{{!character.length}}">
+      <view class="warning">该书还没有人物志！</view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '人物志'
+    }
+    components = {}
+    mixins = []
+    data = {
+      bookId: '',
+      character: []
+    }
+    computed = {}
+    methods = {}
+    events = {}
+     // 获取人物志
+    getCharacterList() {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/characters/?book=' + this.bookId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          // 判断用户是否收藏该本书
+          that.character = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad(options) {
+      this.bookId = options.bookId
+      this.$apply()
+      this.getCharacterList()
+    }
+    onShow() {}
+  }
+</script>

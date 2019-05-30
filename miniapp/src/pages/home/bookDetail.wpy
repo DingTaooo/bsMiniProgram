@@ -1,0 +1,404 @@
+/*
+ * @Author: 蠢卫星 
+ * @Date: 2019-04-01 17:58:42 
+ * @Last Modified by: 蠢卫星
+ * @Last Modified time: 2019-05-20 11:29:15
+ */
+
+<style lang="scss">
+  @import "../../assets/iconfont/iconfont";
+  .container{
+    padding: 0;
+    .bg{
+      height: 300rpx;
+      width: 100%;
+      opacity: 0.3;
+    }
+    .intro{
+      position: relative;
+      top: -40rpx;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 40rpx 40rpx 0 0;
+      border-bottom: 20rpx solid #f5f5f5;
+      .head{
+        position: relative;
+        top: -80rpx;
+        margin-left: 80rpx;
+        display: flex;
+        .cover{
+        border: 4rpx solid #fff;
+        border-radius: 20rpx;
+        height: 200rpx;
+        width: 150rpx;
+        }
+        .right{
+          margin-top: 100rpx;
+          margin-left: 40rpx;
+          .name{
+            font-size: 16px;
+            font-weight: bold;
+          }
+          .author{
+            margin: 20rpx 0 0 30rpx;
+            font-size: 10px;
+            color: #999;
+          }
+          .right-bottom{
+            margin-top: 20rpx;
+            display: flex;
+            .capsule{
+              font-size: 12px;
+              color: #fff;
+              margin-right: 10rpx;
+              height: 50rpx;
+              line-height: 50rpx;
+              padding: 0 20rpx;
+              border-radius: 25rpx;
+              background: linear-gradient(to right, #00eb8d, #00b6b7);
+            }
+          }
+        }
+      }
+      .brief{
+        margin: 0 40rpx;
+        position: relative;
+        top: -40rpx;
+        .desc{
+          line-height: 1.4;
+        }
+        .unfold {
+          .iconfont {
+            transform: rotate(30deg);
+          }
+        }
+        .fold {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          word-break:break-all;
+        }
+        .btn-fold {
+          margin-top: 25rpx;
+          text-align: center;
+          color: #53c68c;
+          .iconfont {
+            margin-left: 10rpx;
+            transition: transform .3s ease;
+          }
+        }
+      }
+    }
+    .comment-catalog{
+      padding: 0 40rpx 80rpx;
+      .head{
+        height: 50rpx;
+        display: flex;
+        font-size: 16px;
+        font-weight: bold;
+        .title{
+          margin-right: 40rpx;
+          &.bottom{
+            border-bottom: 4rpx solid #53c68c;
+          }
+        }
+        .input{
+          position:relative;
+          top:-16rpx;
+          font-size: 12px;
+          font-weight: normal;
+        }
+      }
+      .body{
+        .show{
+          display: block;
+        }
+        .hide{
+          display: none;
+        }
+        .comment{
+          padding-bottom: 10rpx;
+          .user{
+            position: relative;
+            .book-score{
+              position: absolute;
+              right: 0;
+              .iconfont{
+                color: #f4ea2a;
+              }
+            }
+          }
+        }
+        .catalog{
+          padding: 40rpx;
+          .chapter{
+            padding: 20rpx 0;
+            border-bottom: 1rpx solid #f5f5f5;
+          }
+        }
+      }
+    }
+    .add{
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 80rpx;
+      color: #fff;
+      padding-top: 24rpx;
+      text-align: center;
+      background-color: #53c68c;
+    }
+  }
+</style>
+
+<template>
+  <view class="container">
+    <image class="bg" src="{{booksDetail.cover_image}}" mode="aspectFill"/>
+    <view class="intro">
+      <view class="head">
+        <image class="cover" src="{{booksDetail.cover_image}}" mode="aspectFill"/>
+        <view class="right">
+          <text class="name">{{booksDetail.name}}</text>
+          <!-- <navigator url="author"> -->
+            <text class="author" @tap="toAuthor">作者：{{booksDetail.authors[0].name}}</text>
+          <!-- </navigator> -->
+          <!-- <view class="press">作者：{{booksDetail.authors[0].name}}</view> -->
+          <view class="right-bottom">
+            <navigator class="capsule" url="character?bookId={{bookId}}">人物志</navigator>
+            <navigator class="capsule" url="timeline?bookId={{bookId}}">时间轴</navigator>
+          </view>
+        </view>
+      </view>
+      <view class="brief">
+        <view class="desc {{isUnfold ? 'unfold' : 'fold'}}">{{booksDetail.intro}}</view>
+        <view class="btn-fold {{isUnfold ? 'unfold' : 'fold'}}" @tap="toggleFold" wx:if="{{booksDetail.intro.length > 10}}">
+          <text>{{isUnfold ? '收起全部' : '展开全部'}}</text>
+          <i class="iconfont {{isUnfold ? 'icon-up' : 'icon-down'}}"></i>
+        </view>
+      </view>
+    </view>
+    <view class="comment-catalog">
+      <view class="head">
+        <view class="title {{!isComment ? '' : 'bottom'}}" @tap="toggleComment(0)">目录</view>
+        <view class="title {{isComment ? '' : 'bottom'}}" @tap="toggleComment(1)">书评</view>
+        <input class="input" @tap="toComment" placeholder="点击评论" style="display:{{!isComment ? 'block' : 'none'}}"/>
+      </view>
+      <view class="body">
+        <view class="catalog {{isComment ? 'show' : 'hide'}}">
+          <repeat for="{{chaptersList}}" class="catalog {{isComment ? 'show' : 'hide'}}" key="index" index="index" item="item">
+            <navigator url="chapter?chapterId={{item.chapter_id}}">
+              <view class="chapter">{{item.name}}</view>
+            </navigator>
+          </repeat>
+          <view class="tip" wx:if="{{chaptersList.length === 0}}">
+            <view class="warning">该书还没有没更新章节！</view>
+          </view>
+        </view>
+        <view class="comment {{!isComment ? 'show' : 'hide'}}">
+          <repeat for="{{booksComments}}" key="index" index="index" item="item">
+            <view class="comment-item">
+              <view class="user">
+                <image class="user-image" src="{{item.user.user_image}}" mode="aspectFill"/>
+                <view class="user-info">
+                  <view class="name">{{item.user.name}}</view>
+                  <view class="time">{{item.add_time}}</view>
+                </view>
+                <view class="book-score">
+                  <repeat for="{{xingList}}" key="index" index="index" item="item2">
+                    <i class="iconfont icon-xing selected" wx:if="{{index < item.score}}"></i>
+                  </repeat>
+                </view>
+              </view>
+              <view class="info">
+                <text>{{item.comment_word}}</text>
+              </view>
+            </view>
+          </repeat>
+          <view class="tip" wx:if="{{booksComments.length === 0}}">
+            <view class="warning">还没有书评哦！</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="add" @tap="editBook">{{isFav ? '移除书架' : '加入书架'}}</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '图书详情'
+    }
+    components = {}
+    mixins = []
+    data = {
+      xingList: [1, 2, 3, 4, 5],
+      books: [],
+      bookId: '',
+      booksDetail: {},
+      chaptersList: [],
+      booksComments: [],
+      isUnfold: false,
+      isComment: true,
+      isFav: false
+    }
+    computed = {}
+    methods = {
+      toAuthor(){
+        wx.navigateTo({
+          url: 'author'
+        })
+      },
+      /**
+       *  内容简介展开收起
+       */
+      toggleFold() {
+        this.isUnfold = !this.isUnfold
+        this.$apply()
+      },
+      /**
+       *  切换评论和目录
+       */
+      toggleComment(a) {
+        a == 0 ? this.isComment = true : this.isComment = false
+        this.$apply()
+      },
+      /**
+       *  切换评论界面
+       */
+      toComment() {
+        wx.navigateTo({
+          url: 'bookComment?bookId=' + this.bookId + '&bookName=' + this.booksDetail.name
+        })
+      }
+    }
+    events = {}
+    /**
+     * 移除书架&加入书架
+     */
+    editBook() {
+      // let that = this
+      const that = this
+      if(that.isFav) {
+        wx.request({
+          url: 'http://127.0.0.1:8000/usersbooks/' + that.deleteId,
+          data: {},
+          method: 'delete',
+          header: {
+            'content-type': 'application/json'
+          },
+          success: function(res) {
+            wx.showToast({
+              title:'移除成功',
+              icon:'success',
+              duration: 1000
+              })
+            that.isFav = false
+            that.$apply()
+          }
+        })
+      } else {
+        wx.request({
+          url: 'http://127.0.0.1:8000/usersbooks/',
+          data: {
+            books: that.booksDetail.book_id,
+            user: that.userInfo.userId
+          },
+          method: 'post',
+          header: {
+            'content-type': 'application/json'
+          },
+          success: function(res) {
+            wx.showToast({
+              title:'已经加入书架',
+              icon:'success',
+              duration: 1000
+              })
+            that.getUserBooksList()
+            that.isFav = true
+            that.$apply()
+          }
+        })
+      }
+    }
+    // 获取用户书架并验证是否收藏
+    getUserBooksList() {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/usersbooks/?user=' + this.userInfo.userId,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          // 判断用户是否收藏该本书
+          that.books = res.data
+          that.$apply()
+          let bookIds = []
+          for(let i = 0; i < that.books.length; i++) {
+            if (that.bookId == that.books[i].books) {
+              that.isFav = true
+              that.deleteId = that.books[i].id
+              that.$apply()
+            }
+          }
+        }
+      })
+    }
+    /**
+     *  获取图书信息
+     */
+    getBooksDetail(id) {
+      let that = this
+      wx.request({
+        url: 'http://127.0.0.1:8000/books/?book_id=' + id,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.booksDetail = res.data[0]
+          that.$apply()
+        }
+      })
+      wx.request({
+        url: 'http://127.0.0.1:8000/chapters/?book=' + id,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.chaptersList = res.data
+          that.$apply()
+        }
+      })
+      wx.request({
+        url: 'http://127.0.0.1:8000/usercommentbook/?books=' + id,
+        data: {},
+        method: 'get',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function(res) {
+          that.booksComments = res.data
+          that.$apply()
+        }
+      })
+    }
+    onLoad(options) {
+      this.userInfo = this.$parent.globalData.userInfo
+      this.$apply()
+      this.bookId = options.book_id
+      this.getUserBooksList()
+    }
+    onShow() {
+      this.getBooksDetail(this.bookId)
+    }
+  }
+</script>
